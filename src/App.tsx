@@ -1,8 +1,9 @@
 import { FC } from 'react';
 import './App.css';
+import ColorSlider from './examples/ColorSlider';
 
 const App: FC = () => {
-  return <div>App</div>;
+  return <ColorSlider />;
 };
 
 export default App;

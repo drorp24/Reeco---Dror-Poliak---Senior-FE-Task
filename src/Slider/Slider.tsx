@@ -1,16 +1,27 @@
 import React, { CSSProperties } from 'react';
 
-import { SliderProps, SliderPropsDefaultValues } from './Slider.types';
+import {
+  SliderProps,
+  SliderPropsDefaultValues,
+  SliderPropsValues,
+} from './Slider.types';
 import useSlider from './useSlider';
 
-const sliderStyle: CSSProperties = {
+const sliderStyle: (layout: SliderPropsValues['layout']) => CSSProperties = (
+  layout,
+) => ({
   position: 'relative',
   overflow: 'hidden',
   display: 'flex',
+  flexDirection: layout === 'horizontal' ? 'row' : 'column',
   alignItems: 'center',
-};
+  maxHeight: '500px',
+});
 
-const buttonStyle: CSSProperties = {
+const buttonStyle: (
+  position: 'start' | 'end',
+  layout: SliderPropsValues['layout'],
+) => CSSProperties = (position, layout) => ({
   position: 'absolute',
   zIndex: 1,
   display: 'flex',
@@ -24,36 +35,48 @@ const buttonStyle: CSSProperties = {
   fontSize: '1.2rem',
   color: '#fff',
   fontWeight: 'bold',
-};
+  boxShadow:
+    position === 'start'
+      ? '8px 0 10px rgba(0, 0, 0, 0.3)'
+      : '-8px 0 10px rgba(0, 0, 0, 0.3)',
+  ...(position === 'start' && layout === 'horizontal' && { left: 15 }),
+  ...(position === 'start' && layout === 'vertical' && { top: 15 }),
+  ...(position === 'end' && layout === 'horizontal' && { right: 15 }),
+  ...(position === 'end' && layout === 'vertical' && { bottom: 15 }),
+  ...(layout === 'vertical' && { transform: 'rotate(90deg)' }),
+});
 
-const rightShadow = { boxShadow: '8px 0 10px rgba(0, 0, 0, 0.3)' };
-const leftShadow = { boxShadow: '-8px 0 10px rgba(0, 0, 0, 0.3)' };
-
-const containerStyle: (gap: number) => CSSProperties = (gap) => ({
+const containerStyle: (
+  gap: SliderPropsValues['gap'],
+  layout: SliderPropsValues['layout'],
+) => CSSProperties = (gap, layout) => ({
   display: 'flex',
   gap: `${gap}px`,
+  flexDirection: layout === 'horizontal' ? 'row' : 'column',
+  overflowX: layout === 'horizontal' ? 'auto' : 'hidden',
+  overflowY: layout === 'vertical' ? 'auto' : 'hidden',
 });
 
 const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
   // complete all props with default values, using our default props object
   const sliderProps = { ...SliderPropsDefaultValues, ...props };
 
-  const { gap } = sliderProps;
+  const { gap, layout } = sliderProps;
 
   const {
     containerRef,
-    showLeftArrow,
-    showRightArrow,
-    leftScroll,
-    rightScroll,
+    showStartArrow,
+    showEndArrow,
+    scrollAwayFromStart,
+    scrollBackToStart,
   } = useSlider(sliderProps);
 
   return (
-    <div style={sliderStyle}>
-      {showLeftArrow && (
+    <div style={sliderStyle(layout)}>
+      {showStartArrow && (
         <button
-          onClick={rightScroll}
-          style={{ ...buttonStyle, ...rightShadow, left: 15 }}
+          onClick={scrollAwayFromStart}
+          style={buttonStyle('start', layout)}
         >
           ◀
         </button>
@@ -61,17 +84,14 @@ const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
 
       <div
         ref={containerRef}
-        style={containerStyle(gap)}
+        style={containerStyle(gap, layout)}
         className="scrollable-no-scrollbar"
       >
         {children}
       </div>
 
-      {showRightArrow && (
-        <button
-          onClick={leftScroll}
-          style={{ ...buttonStyle, ...leftShadow, right: 15 }}
-        >
+      {showEndArrow && (
+        <button onClick={scrollBackToStart} style={buttonStyle('end', layout)}>
           ▶
         </button>
       )}

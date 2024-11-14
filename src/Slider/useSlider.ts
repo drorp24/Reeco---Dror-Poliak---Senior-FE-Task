@@ -4,10 +4,10 @@ import { SliderPropsValues } from './Slider.types';
 
 interface UseSliderResponse {
   containerRef: React.RefObject<HTMLDivElement>;
-  showLeftArrow: boolean;
-  showRightArrow: boolean;
-  leftScroll: () => void;
-  rightScroll: () => void;
+  showStartArrow: boolean;
+  showEndArrow: boolean;
+  scrollAwayFromStart: () => void;
+  scrollBackToStart: () => void;
 }
 
 /**
@@ -25,74 +25,99 @@ interface UseSliderResponse {
  *
  */
 
-const useSlider = ({ scrollAmount }: SliderPropsValues): UseSliderResponse => {
+const useSlider = ({
+  scrollAmount,
+  layout,
+}: SliderPropsValues): UseSliderResponse => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollLeft, scrollWidth, clientWidth } = containerRef?.current || {};
 
-  const [showLeftArrow, setShowLeftArrow] = useState(false);
-  const [showRightArrow, setShowRightArrow] = useState(false);
-
-  console.group('useSlider');
-  console.log('containerRef?.current: ', containerRef?.current);
-  console.log('clientWidth: ', clientWidth);
-  console.log('scrollWidth: ', scrollWidth);
-  console.log('scrollLeft: ', scrollLeft);
-  console.log('showLeftArrow: ', showLeftArrow);
-  console.log('showRightArrow: ', showRightArrow);
-  console.log(' ');
-  console.groupEnd();
+  const [showStartArrow, setShowStartArrow] = useState(false);
+  const [showEndArrow, setShowEndArrow] = useState(false);
 
   useEffect(() => {
+    if (containerRef.current) {
+      console.log('containerRef is assigned:', containerRef.current);
+    } else {
+      console.log('containerRef is still null');
+    }
+    if (!containerRef.current) return;
+
     const updateArrows = () => {
       if (!containerRef.current) return;
 
-      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      const {
+        scrollLeft,
+        scrollTop,
+        scrollWidth,
+        scrollHeight,
+        clientWidth,
+        clientHeight,
+      } = containerRef.current;
 
-      setShowLeftArrow(scrollLeft > 0);
-      setShowRightArrow(scrollLeft + clientWidth < scrollWidth);
+      const scrolledBeforeStart =
+        layout === 'horizontal' ? scrollLeft > 0 : scrollTop > 0;
+
+      const didntReachTheEnd =
+        layout === 'horizontal'
+          ? scrollLeft + clientWidth < scrollWidth
+          : scrollTop + clientHeight < scrollHeight;
+
+      console.group('updateArrows');
+      console.log('containerRef.current: ', containerRef.current);
+
+      console.log('scrollTop: ', scrollTop);
+      console.log('scrollHeight: ', scrollHeight);
+      console.log('clientHeight: ', clientHeight);
+
+      console.log('scrolledBeforeStart: ', scrolledBeforeStart);
+      console.log('didntReachTheEnd: ', didntReachTheEnd);
+
+      console.log(' ');
+      console.groupEnd();
+
+      setShowStartArrow(scrolledBeforeStart);
+      setShowEndArrow(didntReachTheEnd);
     };
 
-    updateArrows(); // Initial check
+    // update arrow states upon first render
+    updateArrows();
+
+    // update arrow states upon container scroll
     const container = containerRef.current;
     container?.addEventListener('scroll', updateArrows);
 
+    // remove event listener upon unmount
     return () => {
       container?.removeEventListener('scroll', updateArrows);
     };
-  }, []);
+  }, [layout]);
 
-  const leftScroll = () => {
+  const scrollDirection = layout === 'horizontal' ? 'left' : 'top';
+
+  const scrollAwayFromStart = () => {
     if (!containerRef.current) return;
 
-    containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    containerRef.current.scrollBy({
+      [scrollDirection]: -scrollAmount,
+      behavior: 'smooth',
+    });
   };
 
-  const rightScroll = () => {
+  const scrollBackToStart = () => {
     if (!containerRef.current) return;
 
-    containerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    containerRef.current.scrollBy({
+      [scrollDirection]: scrollAmount,
+      behavior: 'smooth',
+    });
   };
-
-  // TESTING
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  window.rightScroll = rightScroll;
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  window.leftScroll = leftScroll;
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //@ts-ignore
-  window.container = containerRef.current;
 
   return {
     containerRef,
-    showLeftArrow,
-    showRightArrow,
-    leftScroll,
-    rightScroll,
+    showStartArrow,
+    showEndArrow,
+    scrollAwayFromStart,
+    scrollBackToStart,
   };
 };
 

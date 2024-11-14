@@ -1,42 +1,80 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
+
+import { SliderProps, SliderPropsDefaultValues } from './Slider.types';
 import useSlider from './useSlider';
 
-interface SliderProps {
-  children: React.ReactNode;
-}
-
-const sliderStyle: React.CSSProperties = {
+const sliderStyle: CSSProperties = {
   position: 'relative',
-  display: 'flex',
-  border: '5px solid white',
   overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
 };
 
-const buttonStyle: React.CSSProperties = {
+const buttonStyle: CSSProperties = {
   position: 'absolute',
-  height: '100%',
   zIndex: 1,
-  backgroundColor: 'transparent',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: 'rgba(0,0,0,0.4)',
+  borderRadius: '50%',
+  border: 0,
+  height: '3.5rem',
+  width: '3.5rem',
+  fontSize: '1.2rem',
+  color: '#fff',
+  fontWeight: 'bold',
 };
 
-const Slider: React.FC<SliderProps> = ({ children }) => {
-  const { offsetX, handleNext, handlePrev } = useSlider();
+const rightShadow = { boxShadow: '8px 0 10px rgba(0, 0, 0, 0.3)' };
+const leftShadow = { boxShadow: '-8px 0 10px rgba(0, 0, 0, 0.3)' };
+
+const containerStyle: (gap: number) => CSSProperties = (gap) => ({
+  display: 'flex',
+  gap: `${gap}px`,
+});
+
+const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
+  // complete all props with default values, using our default props object
+  const sliderProps = { ...SliderPropsDefaultValues, ...props };
+
+  const { gap } = sliderProps;
+
+  const {
+    containerRef,
+    showLeftArrow,
+    showRightArrow,
+    leftScroll,
+    rightScroll,
+  } = useSlider(sliderProps);
 
   return (
     <div style={sliderStyle}>
-      <button onClick={handleNext} style={{ ...buttonStyle, right: 0 }}>
-        &gt;
-      </button>
+      {showLeftArrow && (
+        <button
+          onClick={rightScroll}
+          style={{ ...buttonStyle, ...rightShadow, left: 15 }}
+        >
+          ◀
+        </button>
+      )}
 
-      <div style={{ display: 'flex', transform: `translate(${offsetX}px)` }}>
-        {React.Children.map(children, (child) => (
-          <>{child}</>
-        ))}
+      <div
+        ref={containerRef}
+        style={containerStyle(gap)}
+        className="scrollable-no-scrollbar"
+      >
+        {children}
       </div>
 
-      <button onClick={handlePrev} style={{ ...buttonStyle, left: 0 }}>
-        &lt;
-      </button>
+      {showRightArrow && (
+        <button
+          onClick={leftScroll}
+          style={{ ...buttonStyle, ...leftShadow, right: 15 }}
+        >
+          ▶
+        </button>
+      )}
     </div>
   );
 };

@@ -1,45 +1,38 @@
+import React from 'react';
+
 import Slider from '../Slider/Slider';
 
 const slideItemStyle = {
   width: '300px',
+  minWidth: '250px',
   height: '300px',
   display: 'flex',
   justifyContent: 'center',
-  alignItems: 'center',
+  alignItems: 'flex-end',
+  padding: '1rem',
 };
 
-const ColorSlider: React.FC = () => {
-  return (
-    <div style={{ width: '100%' }}>
-      <h2>Color Slider</h2>
-      <Slider>
+interface ColorSliderProps {
+  colors?: number;
+}
+
+const ColorSlider: React.FC<ColorSliderProps> = ({ colors = 10 }) => (
+  <div style={{ width: '100%' }}>
+    <h2>Color Slider</h2>
+    <Slider>
+      {Array.from({ length: colors }).map((_, index) => (
         <div
+          key={index}
           style={{
             ...slideItemStyle,
-            backgroundColor: 'green',
+            backgroundColor: `hsl(${(360 / colors) * index}, 100%, 50%)`,
           }}
         >
-          <h3>Slide 1</h3>
+          <h3>Slide {index}</h3>
         </div>
-        <div
-          style={{
-            ...slideItemStyle,
-            backgroundColor: 'red',
-          }}
-        >
-          <h3>Slide 2</h3>
-        </div>
-        <div
-          style={{
-            ...slideItemStyle,
-            backgroundColor: 'blue',
-          }}
-        >
-          <h3>Slide 3</h3>
-        </div>
-      </Slider>
-    </div>
-  );
-};
+      ))}
+    </Slider>
+  </div>
+);
 
 export default ColorSlider;

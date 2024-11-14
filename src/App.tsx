@@ -1,7 +1,9 @@
 import { FC } from 'react';
-import './App.css';
-import ColorSlider from './examples/ColorSlider';
 
+import ColorSlider from './examples/ColorSlider';
+import './App.css';
+
+// ToDo: menu to pick which example to show
 const App: FC = () => {
   return <ColorSlider />;
 };

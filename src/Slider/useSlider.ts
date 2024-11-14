@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import throttle from 'lodash.throttle';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SliderPropsValues } from './Slider.types';
 
@@ -34,61 +35,68 @@ const useSlider = ({
   const [showStartArrow, setShowStartArrow] = useState(false);
   const [showEndArrow, setShowEndArrow] = useState(false);
 
+  // update arrows state per the scroll position
+  const updateArrows = () => {
+    if (!containerRef.current) return;
+    const {
+      scrollLeft,
+      scrollTop,
+      scrollWidth,
+      scrollHeight,
+      clientWidth,
+      clientHeight,
+    } = containerRef.current;
+
+    const scrolledBeforeStart =
+      layout === 'horizontal' ? scrollLeft > 0 : scrollTop > 0;
+
+    const didntReachTheEnd =
+      layout === 'horizontal'
+        ? scrollLeft + clientWidth < scrollWidth
+        : scrollTop + clientHeight < scrollHeight;
+
+    // console.group('!!! updateArrows1');
+    // console.log('containerRef.current: ', containerRef.current);
+
+    // console.log('hotizontal"');
+    // console.log('scrollLeft: ', scrollLeft);
+    // console.log('scrollWidth: ', scrollWidth);
+    // console.log('clientWidth: ', clientWidth);
+
+    // console.log('vertical"');
+    // console.log('scrollTop: ', scrollTop);
+    // console.log('scrollHeight: ', scrollHeight);
+    // console.log('clientHeight: ', clientHeight);
+
+    // console.log('scrolledBeforeStart: ', scrolledBeforeStart);
+    // console.log('didntReachTheEnd: ', didntReachTheEnd);
+
+    // console.log(' ');
+    // console.groupEnd();
+
+    setShowStartArrow(scrolledBeforeStart);
+    setShowEndArrow(didntReachTheEnd);
+  };
+
+  // throttle updateArrows (or else it would get called dozens of times on each click)
+  const updateArrowsThrottled = useCallback(
+    throttle(updateArrows, 100) as () => void,
+    [layout],
+  );
+
   useEffect(() => {
-    if (containerRef.current) {
-      console.log('containerRef is assigned:', containerRef.current);
-    } else {
-      console.log('containerRef is still null');
-    }
     if (!containerRef.current) return;
 
-    const updateArrows = () => {
-      if (!containerRef.current) return;
-
-      const {
-        scrollLeft,
-        scrollTop,
-        scrollWidth,
-        scrollHeight,
-        clientWidth,
-        clientHeight,
-      } = containerRef.current;
-
-      const scrolledBeforeStart =
-        layout === 'horizontal' ? scrollLeft > 0 : scrollTop > 0;
-
-      const didntReachTheEnd =
-        layout === 'horizontal'
-          ? scrollLeft + clientWidth < scrollWidth
-          : scrollTop + clientHeight < scrollHeight;
-
-      console.group('updateArrows');
-      console.log('containerRef.current: ', containerRef.current);
-
-      console.log('scrollTop: ', scrollTop);
-      console.log('scrollHeight: ', scrollHeight);
-      console.log('clientHeight: ', clientHeight);
-
-      console.log('scrolledBeforeStart: ', scrolledBeforeStart);
-      console.log('didntReachTheEnd: ', didntReachTheEnd);
-
-      console.log(' ');
-      console.groupEnd();
-
-      setShowStartArrow(scrolledBeforeStart);
-      setShowEndArrow(didntReachTheEnd);
-    };
-
     // update arrow states upon first render
-    updateArrows();
+    updateArrowsThrottled();
 
     // update arrow states upon container scroll
     const container = containerRef.current;
-    container?.addEventListener('scroll', updateArrows);
+    container?.addEventListener('scroll', updateArrowsThrottled);
 
     // remove event listener upon unmount
     return () => {
-      container?.removeEventListener('scroll', updateArrows);
+      container?.removeEventListener('scroll', updateArrowsThrottled);
     };
   }, [layout]);
 

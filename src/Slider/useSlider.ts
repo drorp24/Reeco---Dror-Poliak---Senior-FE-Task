@@ -79,9 +79,9 @@ const useSlider = ({
 
     // scroll by entire card upon arrows key press
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft') {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
         scrollByCard({ forward: false });
-      } else if (event.key === 'ArrowRight') {
+      } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
         scrollByCard({ forward: true });
       }
     };
@@ -112,8 +112,8 @@ const useSlider = ({
     });
   };
 
-  // move forward (or backward) to the next (or prev) card
-  // in other words: make the card next to the one on the left / top become the first one on the list.
+  // move forward (or backward) one card
+  // in other words: make the card next to the one on the left / top become the first one in view.
   const scrollByCard = ({ forward }: { forward: boolean }) => {
     if (!containerRef.current) return;
 

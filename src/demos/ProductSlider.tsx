@@ -81,14 +81,14 @@ const ProductSlider: React.FC<SliderCustomProps> = (sliderCustomProps) => {
     return <ProductSliderSkeleton error={error} loading={loading} />;
 
   return (
-    <>
+    <div>
       <h2>Product Slider</h2>
       <Slider {...sliderCustomProps}>
         {products.map((product, i) => (
           <ProductCard product={product} key={i} />
         ))}
       </Slider>
-    </>
+    </div>
   );
 };
 

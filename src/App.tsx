@@ -4,6 +4,12 @@ import './App.css';
 import DemoMenu from './demos/DemoMenu';
 import useDemo from './demos/useDemo';
 
+const demoPageStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '6vh',
+};
+
 const App: React.FC = () => {
   const {
     demos,
@@ -21,7 +27,7 @@ const App: React.FC = () => {
   } = useDemo();
 
   return (
-    <>
+    <div style={demoPageStyle}>
       <DemoMenu
         demos={demos}
         demo={demo}
@@ -40,7 +46,7 @@ const App: React.FC = () => {
         scrollAmount={scrollAmount}
         scrollMethod={scrollMethod}
       />
-    </>
+    </div>
   );
 };
 

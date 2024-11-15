@@ -7,6 +7,7 @@ import {
 } from './Slider.types';
 import useSlider from './useSlider';
 
+// using inline styles and plain css for simplicity
 const sliderStyle: (layout: SliderPropsValues['layout']) => CSSProperties = (
   layout,
 ) => ({
@@ -33,8 +34,6 @@ const buttonStyle: (
   height: '3.5rem',
   width: '3.5rem',
   fontSize: '1.2rem',
-  color: '#fff',
-  fontWeight: 'bold',
   boxShadow:
     position === 'start'
       ? '8px 0 10px rgba(0, 0, 0, 0.3)'
@@ -58,7 +57,7 @@ const containerStyle: (
 });
 
 const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
-  // complete all props with default values, using our default props object
+  // populate all unspecified props with default values, using our default props object
   const sliderProps = { ...SliderPropsDefaultValues, ...props };
 
   const { gap, layout } = sliderProps;
@@ -67,17 +66,14 @@ const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
     containerRef,
     showStartArrow,
     showEndArrow,
-    scrollAwayFromStart,
-    scrollBackToStart,
+    scrollBackward,
+    scrollForward,
   } = useSlider(sliderProps);
 
   return (
     <div style={sliderStyle(layout)}>
       {showStartArrow && (
-        <button
-          onClick={scrollAwayFromStart}
-          style={buttonStyle('start', layout)}
-        >
+        <button onClick={scrollBackward} style={buttonStyle('start', layout)}>
           ◀
         </button>
       )}
@@ -91,7 +87,7 @@ const Slider: React.FC<SliderProps> = ({ children, ...props }) => {
       </div>
 
       {showEndArrow && (
-        <button onClick={scrollBackToStart} style={buttonStyle('end', layout)}>
+        <button onClick={scrollForward} style={buttonStyle('end', layout)}>
           ▶
         </button>
       )}

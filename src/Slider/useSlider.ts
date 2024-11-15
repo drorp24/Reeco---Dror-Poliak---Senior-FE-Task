@@ -7,8 +7,8 @@ interface UseSliderResponse {
   containerRef: React.RefObject<HTMLDivElement>;
   showStartArrow: boolean;
   showEndArrow: boolean;
-  scrollAwayFromStart: () => void;
-  scrollBackToStart: () => void;
+  scrollForward: () => void;
+  scrollBackward: () => void;
 }
 
 /**
@@ -28,6 +28,7 @@ interface UseSliderResponse {
 
 const useSlider = ({
   scrollAmount,
+  scrollMethod,
   layout,
 }: SliderPropsValues): UseSliderResponse => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +39,7 @@ const useSlider = ({
   // update arrows state per the scroll position
   const updateArrows = () => {
     if (!containerRef.current) return;
+
     const {
       scrollLeft,
       scrollTop,
@@ -52,33 +54,14 @@ const useSlider = ({
 
     const didntReachTheEnd =
       layout === 'horizontal'
-        ? scrollLeft + clientWidth < scrollWidth
+        ? scrollLeft + clientWidth < scrollWidth - 1
         : scrollTop + clientHeight < scrollHeight;
-
-    // console.group('!!! updateArrows1');
-    // console.log('containerRef.current: ', containerRef.current);
-
-    // console.log('hotizontal"');
-    // console.log('scrollLeft: ', scrollLeft);
-    // console.log('scrollWidth: ', scrollWidth);
-    // console.log('clientWidth: ', clientWidth);
-
-    // console.log('vertical"');
-    // console.log('scrollTop: ', scrollTop);
-    // console.log('scrollHeight: ', scrollHeight);
-    // console.log('clientHeight: ', clientHeight);
-
-    // console.log('scrolledBeforeStart: ', scrolledBeforeStart);
-    // console.log('didntReachTheEnd: ', didntReachTheEnd);
-
-    // console.log(' ');
-    // console.groupEnd();
 
     setShowStartArrow(scrolledBeforeStart);
     setShowEndArrow(didntReachTheEnd);
   };
 
-  // throttle updateArrows (or else it would get called dozens of times on each click)
+  // throttle updateArrows (preventing it from getting called dozens of times on each click)
   const updateArrowsThrottled = useCallback(
     throttle(updateArrows, 100) as () => void,
     [layout],
@@ -94,38 +77,104 @@ const useSlider = ({
     const container = containerRef.current;
     container?.addEventListener('scroll', updateArrowsThrottled);
 
-    // remove event listener upon unmount
+    // scroll by entire card upon arrows key press
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        scrollByCard({ forward: false });
+      } else if (event.key === 'ArrowRight') {
+        scrollByCard({ forward: true });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // remove event listeners upon unmount
     return () => {
       container?.removeEventListener('scroll', updateArrowsThrottled);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [layout]);
 
   const scrollDirection = layout === 'horizontal' ? 'left' : 'top';
 
-  const scrollAwayFromStart = () => {
-    if (!containerRef.current) return;
-
-    containerRef.current.scrollBy({
-      [scrollDirection]: -scrollAmount,
+  const scrollByPixels = ({
+    scrollDirection,
+    scrollAmount,
+    forward,
+  }: {
+    scrollDirection: string;
+    scrollAmount: number;
+    forward: boolean;
+  }) => {
+    containerRef?.current?.scrollBy({
+      [scrollDirection]: forward ? scrollAmount : -scrollAmount,
       behavior: 'smooth',
     });
   };
 
-  const scrollBackToStart = () => {
+  // move forward (or backward) to the next (or prev) card
+  // in other words: make the card next to the one on the left / top become the first one on the list.
+  const scrollByCard = ({ forward }: { forward: boolean }) => {
     if (!containerRef.current) return;
 
-    containerRef.current.scrollBy({
-      [scrollDirection]: scrollAmount,
-      behavior: 'smooth',
+    const { scrollLeft, scrollTop } = containerRef.current;
+
+    const childrenArray = Array.from(
+      containerRef.current.children,
+    ) as HTMLElement[];
+
+    // we're looking for the first card to our right (forward) or left (backward)
+    // and since find stops at the first match, we have to start looking from either start (forward) or end (backward)
+    const array = forward ? childrenArray : childrenArray.reverse();
+
+    const isHorizontal = layout === 'horizontal';
+
+    const targetChild = childrenArray.find((child) => {
+      const childPosition = isHorizontal ? child.offsetLeft : child.offsetTop;
+      const scrollPosition = isHorizontal ? scrollLeft : scrollTop;
+
+      childPosition < scrollPosition;
+
+      return forward
+        ? childPosition > scrollPosition
+        : childPosition < scrollPosition;
     });
+
+    if (targetChild) {
+      const targetPosition = isHorizontal
+        ? targetChild.offsetLeft
+        : targetChild.offsetTop;
+
+      targetPosition;
+      console.log('targetPosition: ', targetPosition);
+      console.log(' ');
+      console.groupEnd();
+
+      containerRef.current.scrollTo({
+        [isHorizontal ? 'left' : 'top']: targetPosition,
+        behavior: 'smooth',
+      });
+    }
   };
+
+  // Todo: useCallback
+  const scroll =
+    ({ forward }: { forward: boolean }) =>
+    () => {
+      scrollMethod === 'pixels'
+        ? scrollByPixels({ scrollDirection, scrollAmount, forward })
+        : scrollByCard({ forward });
+    };
+
+  const scrollForward = scroll({ forward: true });
+  const scrollBackward = scroll({ forward: false });
 
   return {
     containerRef,
     showStartArrow,
     showEndArrow,
-    scrollAwayFromStart,
-    scrollBackToStart,
+    scrollBackward,
+    scrollForward,
   };
 };
 

@@ -6,10 +6,13 @@ import { SliderCustomProps } from '../Slider/Slider.types';
 
 interface ProductCardProps {
   product: Product;
+  resopnsive: boolean;
 }
 
 // in a real app, a Card would be its own generic component with props for customization
-const productCardStyle: CSSProperties = {
+const productCardStyle: (responsive: boolean) => CSSProperties = (
+  responsive,
+) => ({
   position: 'relative',
   backgroundColor: 'white',
   display: 'flex',
@@ -17,11 +20,11 @@ const productCardStyle: CSSProperties = {
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '270px',
-  minWidth: '270px',
+  minWidth: responsive ? 'unset' : '270px',
   height: '365px',
   minHeight: '365px',
   padding: '2rem 1rem',
-};
+});
 
 const imageStyle: CSSProperties = {
   width: '70%',
@@ -48,8 +51,9 @@ const priceStyle: CSSProperties = {
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product: { image, title, price },
+  resopnsive,
 }) => (
-  <div style={productCardStyle}>
+  <div style={productCardStyle(resopnsive)}>
     <img src={image} alt={title} style={imageStyle} />
     <div style={titleStyle}>{title}</div>
     <div style={priceStyle}>${price}</div>
@@ -85,7 +89,11 @@ const ProductSlider: React.FC<SliderCustomProps> = (sliderCustomProps) => {
       <h2>Product Slider</h2>
       <Slider {...sliderCustomProps}>
         {products.map((product, i) => (
-          <ProductCard product={product} key={i} />
+          <ProductCard
+            product={product}
+            resopnsive={sliderCustomProps.responsive as boolean}
+            key={i}
+          />
         ))}
       </Slider>
     </div>

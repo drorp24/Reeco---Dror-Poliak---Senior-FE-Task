@@ -59,7 +59,9 @@ const DemoMenuTitle: React.FC = () => (
         justifyContent: 'flex-start',
       }}
     >
-      <div style={{ fontSize: '1.3rem' }}>Click buttons to view the demos.</div>
+      <div style={{ fontSize: '1.3rem' }}>
+        Click buttons to view the options.
+      </div>
       <div style={{ fontSize: '1.3rem' }}>Try using keyboard arrows too.</div>
     </div>
   </div>
@@ -75,6 +77,9 @@ const DemoMenu: React.FC<DemoMenuProps> = ({
   scrollOptions,
   scroll,
   setScroll,
+  responsiveOptions,
+  responsive,
+  setResponsive,
 }) => (
   <div style={demoMenuStyle}>
     <DemoMenuTitle />
@@ -112,6 +117,18 @@ const DemoMenu: React.FC<DemoMenuProps> = ({
             onClick={() => setScroll(s)}
           >
             {s}
+          </button>
+        ))}
+      </div>
+      <div style={menuLineStyle}>
+        {responsiveOptions.map((r) => (
+          <button
+            key={r.toString()}
+            className="optionButton"
+            style={demoChipStyle(r === responsive)}
+            onClick={() => setResponsive(r)}
+          >
+            {r ? 'Responsive' : 'Static'}
           </button>
         ))}
       </div>

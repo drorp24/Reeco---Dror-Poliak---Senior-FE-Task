@@ -77,6 +77,10 @@ const useSlider = ({
     const container = containerRef.current;
     container?.addEventListener('scroll', updateArrowsThrottled);
 
+    // update arrow states upon window resize
+    const handleResize = () => updateArrowsThrottled();
+    window.addEventListener('resize', handleResize);
+
     // scroll by entire card upon arrows key press
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
@@ -88,10 +92,11 @@ const useSlider = ({
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // remove event listeners upon unmount
+    // remove all event listeners upon unmount
     return () => {
       container?.removeEventListener('scroll', updateArrowsThrottled);
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
     };
   }, [layout]);
 
@@ -133,10 +138,8 @@ const useSlider = ({
       const childPosition = isHorizontal ? child.offsetLeft : child.offsetTop;
       const scrollPosition = isHorizontal ? scrollLeft : scrollTop;
 
-      childPosition < scrollPosition;
-
       return forward
-        ? childPosition > scrollPosition
+        ? childPosition > scrollPosition + 1
         : childPosition < scrollPosition;
     });
 
@@ -144,11 +147,6 @@ const useSlider = ({
       const targetPosition = isHorizontal
         ? targetChild.offsetLeft
         : targetChild.offsetTop;
-
-      targetPosition;
-      console.log('targetPosition: ', targetPosition);
-      console.log(' ');
-      console.groupEnd();
 
       containerRef.current.scrollTo({
         [isHorizontal ? 'left' : 'top']: targetPosition,

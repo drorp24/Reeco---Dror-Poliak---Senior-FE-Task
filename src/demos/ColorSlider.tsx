@@ -4,16 +4,18 @@ import Slider from '../Slider/Slider';
 import { SliderCustomProps } from '../Slider/Slider.types';
 
 // let the caller decide how it allows its dimension to change when in slider
-const slideItemStyle: CSSProperties = {
+const slideItemStyle: (responsive: boolean) => CSSProperties = (
+  responsive,
+) => ({
   width: '300px',
-  minWidth: '250px',
+  minWidth: responsive ? 'unset' : '250px',
   height: '300px',
   minHeight: '250px',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'flex-end',
   padding: '1rem',
-};
+});
 
 interface ColorSliderProps extends SliderCustomProps {
   colors?: number;
@@ -34,7 +36,7 @@ const ColorSlider: React.FC<ColorSliderProps> = ({
         <div
           key={index}
           style={{
-            ...slideItemStyle,
+            ...slideItemStyle(sliderCustomProps.responsive as boolean),
             backgroundColor: indexColor(index, colors),
           }}
         >

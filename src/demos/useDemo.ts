@@ -12,6 +12,7 @@ const sliderDemos = {
 const demos = Object.keys(sliderDemos);
 const layouts = ['horizontal', 'vertical'];
 const scrollOptions = ['8', '200', 'card'] as const;
+const responsiveOptions = [true, false];
 
 export type SliderDemoKeys = keyof typeof sliderDemos;
 export type ScrollOptions = (typeof scrollOptions)[number];
@@ -29,6 +30,9 @@ export interface UseDemoResponse {
   setScroll: React.Dispatch<React.SetStateAction<ScrollOptions>>;
   scrollAmount?: SliderPropsValues['scrollAmount'];
   scrollMethod: SliderPropsValues['scrollMethod'];
+  responsiveOptions: boolean[];
+  responsive: boolean;
+  setResponsive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const useDemo = (): UseDemoResponse => {
@@ -36,6 +40,7 @@ const useDemo = (): UseDemoResponse => {
   const [layout, setLayout] =
     useState<SliderPropsValues['layout']>('horizontal');
   const [scroll, setScroll] = useState<ScrollOptions>('200');
+  const [responsive, setResponsive] = useState(false);
 
   const DemoComponent = sliderDemos[demo];
 
@@ -55,6 +60,9 @@ const useDemo = (): UseDemoResponse => {
     setScroll,
     scrollAmount,
     scrollMethod,
+    responsiveOptions,
+    responsive,
+    setResponsive,
   };
 };
 

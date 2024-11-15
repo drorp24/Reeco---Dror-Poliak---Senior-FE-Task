@@ -24,6 +24,9 @@ const App: React.FC = () => {
     setScroll,
     scrollAmount,
     scrollMethod,
+    responsiveOptions,
+    responsive,
+    setResponsive,
   } = useDemo();
 
   return (
@@ -40,11 +43,15 @@ const App: React.FC = () => {
         setScroll={setScroll}
         scrollAmount={scrollAmount}
         scrollMethod={scrollMethod}
+        responsiveOptions={responsiveOptions}
+        responsive={responsive}
+        setResponsive={setResponsive}
       />
       <DemoComponent
         layout={layout}
         scrollAmount={scrollAmount}
         scrollMethod={scrollMethod}
+        responsive={responsive}
       />
     </div>
   );

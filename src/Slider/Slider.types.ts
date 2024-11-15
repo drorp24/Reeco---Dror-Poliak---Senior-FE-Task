@@ -11,6 +11,7 @@ export interface SliderProps {
   scrollAmount?: number; // Number of pixels to scroll with each click
   layout?: Layout; //  direction
   scrollMethod?: ScrollMethod; // Count pixels or progress one card at a time
+  responsive?: boolean; // Whether to show arrows on hover only
 }
 
 // Only the customization props, for the demo components
@@ -25,4 +26,5 @@ export const SliderPropsDefaultValues: SliderPropsValues = {
   scrollAmount: 8,
   layout: 'horizontal',
   scrollMethod: 'pixels',
+  responsive: false,
 };

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 
 import Slider from '../Slider/Slider';
+import { SliderCustomProps } from '../Slider/Slider.types';
 
 // let the caller decide how it allows its dimension to change when in slider
-const slideItemStyle = {
+const slideItemStyle: CSSProperties = {
   width: '300px',
   minWidth: '250px',
   height: '300px',
@@ -14,7 +15,7 @@ const slideItemStyle = {
   padding: '1rem',
 };
 
-interface ColorSliderProps {
+interface ColorSliderProps extends SliderCustomProps {
   colors?: number;
 }
 
@@ -22,10 +23,13 @@ const indexColor = (index: number, colors: number) => {
   return `hsl(${(360 / colors) * index}, 100%, 50%)`;
 };
 
-const ColorSlider: React.FC<ColorSliderProps> = ({ colors = 10 }) => (
-  <>
+const ColorSlider: React.FC<ColorSliderProps> = ({
+  colors = 10,
+  ...sliderCustomProps
+}) => (
+  <div style={{ width: '100%' }}>
     <h2>Color Slider</h2>
-    <Slider scrollAmount={200}>
+    <Slider {...sliderCustomProps}>
       {Array.from({ length: colors }).map((_, index) => (
         <div
           key={index}
@@ -38,7 +42,7 @@ const ColorSlider: React.FC<ColorSliderProps> = ({ colors = 10 }) => (
         </div>
       ))}
     </Slider>
-  </>
+  </div>
 );
 
 export default ColorSlider;

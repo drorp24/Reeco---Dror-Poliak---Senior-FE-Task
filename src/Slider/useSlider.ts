@@ -61,7 +61,7 @@ const useSlider = ({
     setShowEndArrow(didntReachTheEnd);
   };
 
-  // throttle updateArrows (preventing it from getting called dozens of times on each click)
+  // throttle updateArrows (preventing it from getting called dozens of times on each click/scroll)
   const updateArrowsThrottled = useCallback(
     throttle(updateArrows, 100) as () => void,
     [layout],
@@ -117,8 +117,8 @@ const useSlider = ({
     });
   };
 
-  // move forward (or backward) one card
-  // in other words: make the card next to the one on the left / top become the first one in view.
+  // move forward (or backward) one object at a time, counting from the left / top.
+  // that means making the card next to the one on the left / top become the first one in view.
   const scrollByCard = ({ forward }: { forward: boolean }) => {
     if (!containerRef.current) return;
 
@@ -155,7 +155,6 @@ const useSlider = ({
     }
   };
 
-  // Todo: useCallback
   const scroll =
     ({ forward }: { forward: boolean }) =>
     () => {
@@ -171,8 +170,8 @@ const useSlider = ({
     containerRef,
     showStartArrow,
     showEndArrow,
-    scrollBackward,
     scrollForward,
+    scrollBackward,
   };
 };
 

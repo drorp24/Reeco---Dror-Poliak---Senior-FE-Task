@@ -13,7 +13,7 @@ export interface UseProductsResponse {
 }
 
 const useProducts = (): UseProductsResponse => {
-  // using no library for simplicity (no caching, etc.)
+  // using no library for simplicity (no caching etc)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
